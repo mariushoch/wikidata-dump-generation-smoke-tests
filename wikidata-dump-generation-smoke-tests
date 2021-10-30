@@ -1,0 +1,52 @@
+#!/bin/env python3
+
+import sys
+from WikidataDumpGenerationSmokeTests import DumpListingReader, DumpListingValidator
+import argparse
+
+parser = argparse.ArgumentParser(
+    prog = "wikidata-dump-generation-smoke-tests",
+    description = "Smoke tests for Wikidata (and Wikimedia Commons) entity dump generation. " +
+        "These tests ensure that all latest-* dumps are recent, the dump sizes look sane and hash sum files are correctly generated.",
+    formatter_class = argparse.ArgumentDefaultsHelpFormatter
+)
+parser.add_argument(
+    '--max-last-age',
+    help = 'Max age that "latest" dumps may have (days).',
+    action = 'store',
+    dest = 'max_latest_age',
+    type = int,
+    default = 10
+)
+parser.add_argument(
+    '--expected-size-multiplicator',
+    help = 'Multiplicator for the size increase from one dump to the next.',
+    action = 'store',
+    dest = 'expected_size_multiplicator',
+    type = float,
+    default = 1.0005
+)
+group = parser.add_mutually_exclusive_group(required = True)
+group.add_argument('--test-wikidata', help = 'Test Wikidata.', action = 'store_const', dest = 'to_test', const = 'wd')
+group.add_argument('--test-commons', help = 'Test Wikimedia Commons.', action = 'store_const', dest = 'to_test', const = 'commons')
+
+args = parser.parse_args()
+
+if args.to_test == 'wd':
+    main_index_url = 'https://dumps.wikimedia.org/wikidatawiki/entities/'
+elif args.to_test == 'commons':
+    main_index_url = 'https://dumps.wikimedia.org/commonswiki/entities/'
+else:
+    raise Exception('Unknown args.to_test value: "' + str(args.to_test) + '".')
+
+dump_listing_reader = DumpListingReader(main_index_url)
+dump_listing_validator = DumpListingValidator(args.max_latest_age, args.expected_size_multiplicator)
+
+result = dump_listing_validator.validate_listing(dump_listing_reader.get_dumps_info())
+
+if not result.valid:
+    print('Errors were found:')
+    print()
+    for error in result.errors:
+        print(error)
+    sys.exit(1)
