@@ -6,7 +6,7 @@ import argparse
 
 parser = argparse.ArgumentParser(
     prog = "wikidata-dump-generation-smoke-tests",
-    description = "Smoke tests for Wikidata (and Wikimedia Commons) entity dump generation. " +
+    description = "Smoke tests for Wikidata and Wikimedia Commons Wikibase entity dump generation. " +
         "These tests ensure that all latest-* dumps are recent, the dump sizes look sane and hash sum files are correctly generated.",
     formatter_class = argparse.ArgumentDefaultsHelpFormatter
 )

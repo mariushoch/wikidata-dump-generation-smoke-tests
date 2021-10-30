@@ -1,5 +1,5 @@
 ## wikidata-dump-generation-smoke-tests
-Smoke tests for Wikidata (and Wikimedia Commons) entity dump generation.
+Smoke tests for Wikidata and Wikimedia Commons Wikibase entity dump generation.
 
 These tests ensure that all `latest-*` dumps are recent, the dump sizes look sane and hash sum files are correctly generated.
 
