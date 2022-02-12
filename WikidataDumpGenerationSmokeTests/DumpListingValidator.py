@@ -14,6 +14,9 @@ class DumpListingValidator():
         self.expected_size_multiplicator = expected_size_multiplicator
 
     def _ensure_hashsum_files(self, dump_dirs):
+        """
+        Make sure all dump directories have both md5 and sha1 hash sum files.
+        """
         valid = True
         errors = []
 
@@ -28,13 +31,16 @@ class DumpListingValidator():
         return ValidatorResult(valid, errors)
 
     def _ensure_latest(self, latest):
+        """
+        Make sure all "latest" dumps are recent enough (at most self.max_latest_age days).
+        """
         now = datetime.now()
         valid = True
         errors = []
 
         for latest_name, latest_date in latest.items():
             age = now - latest_date
-            # More than 10 days old
+            # Older than expected
             if age > timedelta(days = self.max_latest_age):
                 valid = False
                 errors.append('Latest dump "' + latest_name + '" is too old (' + str(age.days) + ' days).')
@@ -42,14 +48,17 @@ class DumpListingValidator():
         return ValidatorResult(valid, errors)
 
     def _ensure_dump_sizes(self, dumps_by_type):
+        """
+        Make sure all dumps are at least self.expected_size_multiplicator time as large as
+        the previous dump of the same type.
+        """
         valid = True
         errors = []
 
         for dump_type, dumps in dumps_by_type.items():
             last_size = 0
             for dump_name, dump in dumps.items():
-                # New dumps need to be at least 0.05% larger than the last dump
-                expected_size = int(last_size*self.expected_size_multiplicator)
+                expected_size = int(last_size * self.expected_size_multiplicator)
                 if dump.size < expected_size:
                     valid = False
                     errors.append(
@@ -88,6 +97,12 @@ class DumpListingValidator():
         return ValidatorResult(valid, errors)
 
     def validate_listing(self, dump_all_info):
+        """
+        Makes sure the given DumpAllInfo is valid.
+
+        Returns a named tumple containing a bool indicating validity (valid) and a list
+        of errors (errors).
+        """
         result_hashsum_files = self._ensure_hashsum_files(dump_all_info.dump_dirs)
         result_latest = self._ensure_latest(dump_all_info.latest)
         result_dump_sizes = self._ensure_dump_sizes(self._group_dumps_by_type(dump_all_info.dump_dirs))
