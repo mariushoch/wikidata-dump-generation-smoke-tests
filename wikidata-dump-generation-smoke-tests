@@ -24,7 +24,7 @@ parser.add_argument(
     action = 'store',
     dest = 'expected_size_multiplicator',
     type = float,
-    default = 1.0005
+    default = 1.0003
 )
 group = parser.add_mutually_exclusive_group(required = True)
 group.add_argument('--test-wikidata', help = 'Test Wikidata.', action = 'store_const', dest = 'to_test', const = 'wd')
