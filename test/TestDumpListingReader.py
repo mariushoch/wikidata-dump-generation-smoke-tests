@@ -1,6 +1,5 @@
 import sys
 import os
-sys.path.insert(1, os.path.realpath(os.path.pardir))
 
 import unittest
 from unittest.mock import patch
@@ -34,7 +33,7 @@ wikidatawiki20211030_dirs = [
 ]
 
 class TestDumpListingReader(unittest.TestCase):
-    @patch('WikidataDumpGenerationSmokeTests.DumpListingReader._request_dump_main_index')
+    @patch.object(DumpListingReader, '_request_dump_main_index')
     def test_get_dump_main_index_empty(self, mock_request_dump_main_index):
         mock_request_dump_main_index.side_effect = lambda : 'foo'.encode()
 
@@ -43,8 +42,8 @@ class TestDumpListingReader(unittest.TestCase):
         self.assertEqual(dump_main_index.latest, {})
         self.assertEqual(dump_main_index.dirs, [])
 
-    @patch('WikidataDumpGenerationSmokeTests.DumpListingReader._request_dump_dir')
-    @patch('WikidataDumpGenerationSmokeTests.DumpListingReader._request_dump_main_index')
+    @patch.object(DumpListingReader, '_request_dump_dir')
+    @patch.object(DumpListingReader, '_request_dump_main_index')
     def test_get_dump_main_index_wikidatawiki20211030(self, mock_request_dump_main_index, mock_request_dump_dir):
         mock_request_dump_main_index.side_effect = lambda : Path(__DIR__ + '/DumpListingReaderTestCases/wikidatawiki-2021-10-30/index.html').read_text().encode()
         mock_request_dump_dir.side_effect = ''.encode()
@@ -57,7 +56,7 @@ class TestDumpListingReader(unittest.TestCase):
         self.assertEqual(dump_main_index.latest['latest-all.json.bz2'], datetime.fromisoformat('2021-10-28'))
         self.assertEqual(dump_main_index.latest['latest-truthy.nt.gz'], datetime.fromisoformat('2021-10-30'))
 
-    @patch('WikidataDumpGenerationSmokeTests.DumpListingReader._request_dump_dir')
+    @patch.object(DumpListingReader, '_request_dump_dir')
     def test_get_dump_dir_wikidatawiki20211030_20210924(self, mock_request_dump_dir):
         def request_dump_dir_from_file(dir_date):
             self.assertEqual(dir_date, '20210924/')
@@ -80,8 +79,8 @@ class TestDumpListingReader(unittest.TestCase):
         self.assertEqual(dump_dir.md5sums_file, 'wikidata-20210924-md5sums.txt')
         self.assertEqual(dump_dir.sha1sums_file, 'wikidata-20210924-sha1sums.txt')
 
-    @patch('WikidataDumpGenerationSmokeTests.DumpListingReader._request_dump_dir')
-    @patch('WikidataDumpGenerationSmokeTests.DumpListingReader._request_dump_main_index')
+    @patch.object(DumpListingReader, '_request_dump_dir')
+    @patch.object(DumpListingReader, '_request_dump_main_index')
     def test_get_dumps_info_wikidatawiki20211030(self, mock_request_dump_main_index, mock_request_dump_dir):
         dump_dirs_to_visit = wikidatawiki20211030_dirs.copy()
 
