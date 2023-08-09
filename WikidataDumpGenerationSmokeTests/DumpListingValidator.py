@@ -64,8 +64,7 @@ class DumpListingValidator():
                     errors.append(
                         'Dump ' + dump_name + ' should be at least ' + str(expected_size) + ' bytes (is ' + str(dump.size) + ' bytes).'
                     )
-                else:
-                    last_size = dump.size
+                last_size = dump.size
 
         return ValidatorResult(valid, errors)
 

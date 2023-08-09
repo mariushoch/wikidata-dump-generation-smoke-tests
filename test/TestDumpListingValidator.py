@@ -319,8 +319,10 @@ class TestDumpListingValidator(unittest.TestCase):
         dump_listing_validator = DumpListingValidator()
 
         lexemes_bz2_20211006 = DumpInfo(10000, datetime.fromisoformat('2021-10-06'))
-        lexemes_bz2_20211007 = DumpInfo(10000, datetime.fromisoformat('2021-10-06'))
-        lexemes_bz2_20211008 = DumpInfo(12000, datetime.fromisoformat('2021-10-06'))
+        # This is (unexpectedly) much smaller -> failure
+        lexemes_bz2_20211007 = DumpInfo(8000, datetime.fromisoformat('2021-10-07'))
+        # This is larger again (compared to previous dump only) -> should be fine
+        lexemes_bz2_20211008 = DumpInfo(9000, datetime.fromisoformat('2021-10-08'))
 
         dump_dirs = {
             'dsf': DumpDirInfo({
@@ -336,7 +338,7 @@ class TestDumpListingValidator(unittest.TestCase):
 
         result = dump_listing_validator.validate_listing(DumpAllInfo({}, dump_dirs))
         self.assertEqual(result.valid, False)
-        self.assertEqual(result.errors, ['Dump wikidata-20211007-lexemes.json.bz2 should be at least 10005 bytes (is 10000 bytes).'])
+        self.assertEqual(result.errors, ['Dump wikidata-20211007-lexemes.json.bz2 should be at least 10005 bytes (is 8000 bytes).'])
 
     def test_validate_listing_multiple_failures(self):
         dump_listing_validator = DumpListingValidator()
