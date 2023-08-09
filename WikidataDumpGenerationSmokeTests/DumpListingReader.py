@@ -9,7 +9,7 @@ DumpInfo = namedtuple('DumpInfo', ['size', 'date'])
 DumpAllInfo = namedtuple('DumpAllInfo', ['latest', 'dump_dirs'])
 
 class DumpListingReader():
-    main_index_url = ''
+    main_index_url = None
 
     def __init__(self, main_index_url):
         self.main_index_url = main_index_url
