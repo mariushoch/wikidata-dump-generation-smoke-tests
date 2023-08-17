@@ -14,9 +14,10 @@ class TestDumpListingValidator(unittest.TestCase):
 
     def test_ensure_hashsum_files_success(self):
         dump_dirs = {
-            'dsf': DumpDirInfo({}, 'foo', 'bar'),
-            'fdgk': DumpDirInfo({}, 'dfr', 'dfs'),
-            'dfs': DumpDirInfo({}, '124', 'dd'),
+            'dsf': DumpDirInfo({'ignored'}, 'foo', 'bar'),
+            'fdgk': DumpDirInfo({'ignored'}, 'dfr', 'dfs'),
+            'dfs': DumpDirInfo({'ignored'}, '124', 'dd'),
+            'emtpy_dump_dir_does_not_need_hash_files': DumpDirInfo({}, None, None),
         }
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_hashsum_files(dump_dirs)
@@ -25,9 +26,9 @@ class TestDumpListingValidator(unittest.TestCase):
 
     def test_ensure_hashsum_files_single_failure(self):
         dump_dirs = {
-            'dsf': DumpDirInfo({}, 'foo', 'ddd'),
-            'fdgk': DumpDirInfo({}, 'dfr', None),
-            'dfs': DumpDirInfo({}, '124', 'dd'),
+            'dsf': DumpDirInfo({'ignored'}, 'foo', 'ddd'),
+            'fdgk': DumpDirInfo({'ignored'}, 'dfr', None),
+            'dfs': DumpDirInfo({'ignored'}, '124', 'dd'),
         }
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_hashsum_files(dump_dirs)
@@ -36,9 +37,9 @@ class TestDumpListingValidator(unittest.TestCase):
 
     def test_ensure_hashsum_files_multiple_failures(self):
         dump_dirs = {
-            'dsf': DumpDirInfo({}, None, 'ddd'),
-            'fdgk': DumpDirInfo({}, 'dfr', None),
-            'dfs': DumpDirInfo({}, '124', 'dd'),
+            'dsf': DumpDirInfo({'ignored'}, None, 'ddd'),
+            'fdgk': DumpDirInfo({'ignored'}, 'dfr', None),
+            'dfs': DumpDirInfo({'ignored'}, '124', 'dd'),
         }
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_hashsum_files(dump_dirs)
@@ -294,9 +295,14 @@ class TestDumpListingValidator(unittest.TestCase):
     def test_validate_listing_hashsum_file_failure(self):
         dump_listing_validator = DumpListingValidator()
 
+        lexemes_bz2_20211006 = DumpInfo(10000, datetime.fromisoformat('2021-10-06'))
         dump_dirs = {
-            'dsf': DumpDirInfo({}, None, 'bar'),
-            'fdgk': DumpDirInfo({}, 'dfr', 'dfs'),
+            'dsf': DumpDirInfo({
+                'wikidata-20211006-lexemes.json.bz2': lexemes_bz2_20211006
+            }, None, 'bar'),
+            'fdgk': DumpDirInfo({
+                'wikidata-20211006-lexemes.json.bz2': lexemes_bz2_20211006
+            }, 'dfr', 'dfs'),
         }
         result = dump_listing_validator.validate_listing(DumpAllInfo({}, dump_dirs))
         self.assertEqual(result.valid, False)

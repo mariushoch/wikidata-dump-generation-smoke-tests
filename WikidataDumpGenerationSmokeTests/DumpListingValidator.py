@@ -21,6 +21,9 @@ class DumpListingValidator():
         errors = []
 
         for dump_dir_name, dump_dir in dump_dirs.items():
+            if not dump_dir.dumps:
+                # No dumps, no need for hashes
+                continue
             if not dump_dir.md5sums_file:
                 valid = False
                 errors.append('Missing md5sum file in dir "' + dump_dir_name + '".')
