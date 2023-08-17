@@ -1,5 +1,14 @@
 #!/usr/bin/env bats
 
+teardown() {
+	# Print last output from bats' run
+	# bats will not output anything, if the test succeeded.
+	if [ -n "$output" ]; then
+		echo "Last \$output:"
+		echo "$output"
+	fi
+}
+
 @test "wikidata-dump-generation-smoke-tests: help" {
         run "$BATS_TEST_DIRNAME/wikidata-dump-generation-smoke-tests" --help
         [ "$status" -eq 0 ]
