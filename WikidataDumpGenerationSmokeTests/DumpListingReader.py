@@ -1,12 +1,21 @@
 from urllib.request import urlopen
-from collections import namedtuple
 import datetime
 import re
+from typing import NamedTuple, Optional
 
-DumpMainInfo = namedtuple('DumpMainIndex', ['latest', 'dirs'])
-DumpDirInfo = namedtuple('DumpDirInfo', ['dumps', 'md5sums_file', 'sha1sums_file'])
-DumpInfo = namedtuple('DumpInfo', ['size', 'date'])
-DumpAllInfo = namedtuple('DumpAllInfo', ['latest', 'dump_dirs'])
+class DumpMainInfo(NamedTuple):
+    latest: dict[str, datetime.datetime]
+    dirs: list[str]
+class DumpInfo(NamedTuple):
+    size: int
+    date: datetime.datetime
+class DumpDirInfo(NamedTuple):
+    dumps: dict[str, DumpInfo]
+    md5sums_file: Optional[str]
+    sha1sums_file: Optional[str]
+class DumpAllInfo(NamedTuple):
+    latest: dict[str, datetime.datetime]
+    dump_dirs: dict[str, DumpDirInfo]
 
 class DumpListingReader():
     main_index_url = None
@@ -24,7 +33,7 @@ class DumpListingReader():
             assert request.status == 200
             return request.read()
 
-    def _get_dump_main_index(self):
+    def _get_dump_main_index(self) -> DumpMainInfo:
         dump_main_index_raw = self._request_dump_main_index()
 
         dirs = []
@@ -42,7 +51,7 @@ class DumpListingReader():
 
         return DumpMainInfo(latest, dirs)
 
-    def _get_dump_dir(self, dir_date):
+    def _get_dump_dir(self, dir_date) -> DumpDirInfo:
         dump_dir_raw = self._request_dump_dir(dir_date)
         dumps = {}
         md5sums_file = None
@@ -67,7 +76,7 @@ class DumpListingReader():
 
         return DumpDirInfo(dumps, md5sums_file, sha1sums_file)
 
-    def get_dumps_info(self):
+    def get_dumps_info(self) -> DumpAllInfo:
         dump_dirs = {}
         main_index = self._get_dump_main_index()
 

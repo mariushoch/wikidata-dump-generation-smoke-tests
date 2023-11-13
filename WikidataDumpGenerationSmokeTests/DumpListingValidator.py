@@ -1,9 +1,10 @@
-from urllib.request import urlopen
-from collections import namedtuple
 from datetime import datetime, timedelta
 import re
+from typing import NamedTuple
 
-ValidatorResult = namedtuple('ValidatorResult', ['valid', 'errors'])
+class ValidatorResult(NamedTuple):
+    valid: bool
+    errors: list
 
 class DumpListingValidator():
     max_latest_age = None
@@ -13,7 +14,7 @@ class DumpListingValidator():
         self.max_latest_age = max_latest_age + 1
         self.expected_size_multiplicator = expected_size_multiplicator
 
-    def _ensure_hashsum_files(self, dump_dirs):
+    def _ensure_hashsum_files(self, dump_dirs) -> ValidatorResult:
         """
         Make sure all dump directories have both md5 and sha1 hash sum files.
         """
@@ -33,7 +34,7 @@ class DumpListingValidator():
 
         return ValidatorResult(valid, errors)
 
-    def _ensure_latest(self, latest):
+    def _ensure_latest(self, latest) -> ValidatorResult:
         """
         Make sure all "latest" dumps are recent enough (at most self.max_latest_age days).
         """
@@ -50,7 +51,7 @@ class DumpListingValidator():
 
         return ValidatorResult(valid, errors)
 
-    def _ensure_dump_sizes(self, dumps_by_type):
+    def _ensure_dump_sizes(self, dumps_by_type) -> ValidatorResult:
         """
         Make sure all dumps are at least self.expected_size_multiplicator time as large as
         the previous dump of the same type.
@@ -88,7 +89,7 @@ class DumpListingValidator():
 
         return dumps_by_type
 
-    def _merge_results(self, *results):
+    def _merge_results(self, *results) -> ValidatorResult:
         valid = True
         errors = []
 
@@ -98,7 +99,7 @@ class DumpListingValidator():
 
         return ValidatorResult(valid, errors)
 
-    def validate_listing(self, dump_all_info):
+    def validate_listing(self, dump_all_info) -> ValidatorResult:
         """
         Makes sure the given DumpAllInfo is valid.
 
