@@ -3,19 +3,27 @@ import datetime
 import re
 from typing import NamedTuple, Optional
 
-class DumpMainInfo(NamedTuple):
-    latest: dict[str, datetime.datetime]
-    dirs: list[str]
-class DumpInfo(NamedTuple):
-    size: int
-    date: datetime.datetime
-class DumpDirInfo(NamedTuple):
-    dumps: dict[str, DumpInfo]
-    md5sums_file: Optional[str]
-    sha1sums_file: Optional[str]
-class DumpAllInfo(NamedTuple):
-    latest: dict[str, datetime.datetime]
-    dump_dirs: dict[str, DumpDirInfo]
+try:
+    class DumpMainInfo(NamedTuple):
+        latest: dict[str, datetime.datetime]
+        dirs: list[str]
+    class DumpInfo(NamedTuple):
+        size: int
+        date: datetime.datetime
+    class DumpDirInfo(NamedTuple):
+        dumps: dict[str, DumpInfo]
+        md5sums_file: Optional[str]
+        sha1sums_file: Optional[str]
+    class DumpAllInfo(NamedTuple):
+        latest: dict[str, datetime.datetime]
+        dump_dirs: dict[str, DumpDirInfo]
+except TypeError:
+    # B/C for Python < 3.9: https://docs.python.org/3.9/whatsnew/3.9.html#type-hinting-generics-in-standard-collections
+    from collections import namedtuple
+    DumpMainInfo = namedtuple('DumpMainIndex', ['latest', 'dirs'])
+    DumpDirInfo = namedtuple('DumpDirInfo', ['dumps', 'md5sums_file', 'sha1sums_file'])
+    DumpInfo = namedtuple('DumpInfo', ['size', 'date'])
+    DumpAllInfo = namedtuple('DumpAllInfo', ['latest', 'dump_dirs'])
 
 class DumpListingReader():
     main_index_url = None

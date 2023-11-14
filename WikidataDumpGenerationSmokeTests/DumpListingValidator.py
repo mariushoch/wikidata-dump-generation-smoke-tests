@@ -2,9 +2,14 @@ from datetime import datetime, timedelta
 import re
 from typing import NamedTuple
 
-class ValidatorResult(NamedTuple):
-    valid: bool
-    errors: list
+try:
+    class ValidatorResult(NamedTuple):
+        valid: bool
+        errors: list[str]
+except TypeError:
+    # B/C for Python < 3.9: https://docs.python.org/3.9/whatsnew/3.9.html#type-hinting-generics-in-standard-collections
+    from collections import namedtuple
+    ValidatorResult = namedtuple('ValidatorResult', ['valid', 'errors'])
 
 class DumpListingValidator():
     max_latest_age = None
