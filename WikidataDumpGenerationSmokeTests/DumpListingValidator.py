@@ -14,10 +14,12 @@ except TypeError:
 class DumpListingValidator():
     max_latest_age = None
     expected_size_multiplicator = None
+    latest_expected = []
 
-    def __init__(self, max_latest_age = 10, expected_size_multiplicator = 1.0005):
+    def __init__(self, max_latest_age = 10, expected_size_multiplicator = 1.0005, latest_expected = []):
         self.max_latest_age = max_latest_age + 1
         self.expected_size_multiplicator = expected_size_multiplicator
+        self.latest_expected = latest_expected
 
     def _ensure_hashsum_files(self, dump_dirs) -> ValidatorResult:
         """
@@ -47,15 +49,20 @@ class DumpListingValidator():
         valid = True
         errors = []
 
-        for latest_name, latest in latest.items():
-            age = now - latest.date
+        for latest_name, latest_info in latest.items():
+            age = now - latest_info.date
             # Older than expected
             if age > timedelta(days = self.max_latest_age):
                 valid = False
                 errors.append('Latest dump "' + latest_name + '" is too old (' + str(age.days) + ' days).')
-            if latest.size < 150:
+            if latest_info.size < 150:
                 valid = False
                 errors.append('Latest dump "' + latest_name + '" seems empty (probably a broken symlink).')
+
+        missing_latest = set(self.latest_expected) - set(latest.keys())
+        if missing_latest:
+            valid = False
+            errors.append('Missing expected files: "%s".' % '", "'.join(missing_latest))
 
         return ValidatorResult(valid, errors)
 

@@ -34,13 +34,37 @@ args = parser.parse_args()
 
 if args.to_test == 'wd':
     main_index_url = 'https://dumps.wikimedia.org/wikidatawiki/entities/'
+    latest_expected = [
+        "latest-all.json.bz2",
+        "latest-all.json.gz",
+        "latest-all.nt.bz2",
+        "latest-all.nt.gz",
+        "latest-all.ttl.bz2",
+        "latest-all.ttl.gz",
+        "latest-lexemes.json.bz2",
+        "latest-lexemes.json.gz",
+        "latest-lexemes.nt.bz2",
+        "latest-lexemes.nt.gz",
+        "latest-lexemes.ttl.bz2",
+        "latest-lexemes.ttl.gz",
+        "latest-truthy.nt.bz2",
+        "latest-truthy.nt.gz"
+    ]
 elif args.to_test == 'commons':
     main_index_url = 'https://dumps.wikimedia.org/commonswiki/entities/'
+    latest_expected = [
+        "latest-mediainfo.json.bz2",
+        "latest-mediainfo.json.gz",
+        "latest-mediainfo.nt.bz2",
+        "latest-mediainfo.nt.gz",
+        "latest-mediainfo.ttl.bz2",
+        "latest-mediainfo.ttl.gz"
+    ]
 else:
     raise Exception('Unknown args.to_test value: "' + str(args.to_test) + '".')
 
 dump_listing_reader = DumpListingReader(main_index_url)
-dump_listing_validator = DumpListingValidator(args.max_latest_age, args.expected_size_multiplicator)
+dump_listing_validator = DumpListingValidator(args.max_latest_age, args.expected_size_multiplicator, latest_expected)
 
 result = dump_listing_validator.validate_listing(dump_listing_reader.get_dumps_info())
 

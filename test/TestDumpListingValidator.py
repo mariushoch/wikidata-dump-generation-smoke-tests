@@ -323,6 +323,21 @@ class TestDumpListingValidator(unittest.TestCase):
         self.assertEqual(result.valid, False)
         self.assertEqual(result.errors, ['Latest dump "b" is too old (70 days).'])
 
+    def test_validate_listing_latest_missing(self):
+        dump_listing_validator = DumpListingValidator(latest_expected=['has-to-be-there1', 'has-to-be-there3', 'has-to-be-there2'])
+
+        latest = {
+            'a': DumpInfo(222, datetime.now()),
+            'has-to-be-there2': DumpInfo(222, datetime.now()),
+            'b': DumpInfo(222, datetime.now()),
+        }
+
+        result = dump_listing_validator.validate_listing(DumpAllInfo(latest, {}))
+        self.assertEqual(result.valid, False)
+        self.assertTrue(result.errors == ['Missing expected files: "has-to-be-there1", "has-to-be-there3".'] or
+                        result.errors == ['Missing expected files: "has-to-be-there3", "has-to-be-there1".']
+                        )
+
     def test_validate_listing_size_failure(self):
         dump_listing_validator = DumpListingValidator()
 
