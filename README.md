@@ -9,3 +9,6 @@ This is run as cron job on `stat1005.eqiad.wmnet` ([details](https://gist.github
 
 ### Usage
 See `wikidata-dump-generation-smoke-tests --help`.
+
+### Tests
+Use `python -m unittest` to run the python unit tests and `bats wikidata-dump-generation-smoke-tests.bats` to run the integration tests.
