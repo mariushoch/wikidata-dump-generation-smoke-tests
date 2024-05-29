@@ -9,12 +9,13 @@ try:
 except TypeError:
     # B/C for Python < 3.9: https://docs.python.org/3.9/whatsnew/3.9.html#type-hinting-generics-in-standard-collections
     from collections import namedtuple
-    ValidatorResult = namedtuple('ValidatorResult', ['valid', 'errors'])
+    ValidatorResult = namedtuple(
+        'ValidatorResult', ['valid', 'errors'])  # type: ignore
 
 
 class DumpListingValidator():
-    max_latest_age = None
-    expected_size_multiplicator = None
+    max_latest_age = 0
+    expected_size_multiplicator = 0.0
     latest_expected = []
 
     def __init__(self, max_latest_age=10, expected_size_multiplicator=1.0005, latest_expected=[]):

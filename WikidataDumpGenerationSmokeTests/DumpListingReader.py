@@ -8,32 +8,29 @@ try:
         size: int
         date: datetime.datetime
 
-    class DumpMainInfo(NamedTuple):
-        latest: dict[str, DumpInfo]
-        dirs: list[str]
-
     class DumpDirInfo(NamedTuple):
         dumps: dict[str, DumpInfo]
         md5sums_file: Optional[str]
         sha1sums_file: Optional[str]
 
     class DumpAllInfo(NamedTuple):
-        latest: dict[str, datetime.datetime]
+        latest: dict[str, DumpInfo]
         dump_dirs: dict[str, DumpDirInfo]
 except TypeError:
     # B/C for Python < 3.9: https://docs.python.org/3.9/whatsnew/3.9.html#type-hinting-generics-in-standard-collections
     from collections import namedtuple
-    DumpMainInfo = namedtuple('DumpMainIndex', ['latest', 'dirs'])
     DumpDirInfo = namedtuple(
+        # type: ignore
         'DumpDirInfo', ['dumps', 'md5sums_file', 'sha1sums_file'])
-    DumpInfo = namedtuple('DumpInfo', ['size', 'date'])
-    DumpAllInfo = namedtuple('DumpAllInfo', ['latest', 'dump_dirs'])
+    DumpInfo = namedtuple('DumpInfo', ['size', 'date'])  # type: ignore
+    DumpAllInfo = namedtuple(
+        'DumpAllInfo', ['latest', 'dump_dirs'])  # type: ignore
 
 
 class DumpListingReader():
-    main_index_url = None
+    main_index_url: str
 
-    def __init__(self, main_index_url):
+    def __init__(self, main_index_url: str):
         self.main_index_url = main_index_url
 
     def _request_dump_main_index(self):
@@ -45,27 +42,6 @@ class DumpListingReader():
         with urlopen(self.main_index_url + dir_date) as request:
             assert request.status == 200
             return request.read()
-
-    def _get_dump_main_index(self) -> DumpMainInfo:
-        dump_main_index_raw = self._request_dump_main_index()
-
-        dirs = []
-        latest = {}
-
-        for line in dump_main_index_raw.splitlines():
-            line = line.decode('UTF-8')
-            res_dirs = re.search(r"20[2-3]\d[0-1]\d[0-3]\d/", line)
-            res_latest = re.search(
-                r"(latest-.*?\.(gz|bz2)).*(\d\d-\w{3}-20[2-3]\d) \d\d:\d\d +(\d+)", line)
-            if res_dirs:
-                dirs.append(res_dirs.group(0))
-            elif res_latest:
-                date = datetime.datetime.strptime(
-                    res_latest.group(3), '%d-%b-%Y')
-                latest[res_latest.group(1)] = DumpInfo(
-                    int(res_latest.group(4)), date)
-
-        return DumpMainInfo(latest, dirs)
 
     def _get_dump_dir(self, dir_date) -> DumpDirInfo:
         dump_dir_raw = self._request_dump_dir(dir_date)
@@ -96,10 +72,26 @@ class DumpListingReader():
         return DumpDirInfo(dumps, md5sums_file, sha1sums_file)
 
     def get_dumps_info(self) -> DumpAllInfo:
-        dump_dirs = {}
-        main_index = self._get_dump_main_index()
+        dump_main_index_raw = self._request_dump_main_index()
 
-        for dir_date in main_index.dirs:
+        dirs = []
+        latest = {}
+
+        for line in dump_main_index_raw.splitlines():
+            line = line.decode('UTF-8')
+            res_dirs = re.search(r"20[2-3]\d[0-1]\d[0-3]\d/", line)
+            res_latest = re.search(
+                r"(latest-.*?\.(gz|bz2)).*(\d\d-\w{3}-20[2-3]\d) \d\d:\d\d +(\d+)", line)
+            if res_dirs:
+                dirs.append(res_dirs.group(0))
+            elif res_latest:
+                date = datetime.datetime.strptime(
+                    res_latest.group(3), '%d-%b-%Y')
+                latest[res_latest.group(1)] = DumpInfo(
+                    int(res_latest.group(4)), date)
+
+        dump_dirs = {}
+        for dir_date in dirs:
             dump_dirs[dir_date] = self._get_dump_dir(dir_date)
 
-        return DumpAllInfo(main_index.latest, dump_dirs)
+        return DumpAllInfo(latest, dump_dirs)

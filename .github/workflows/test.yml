@@ -6,11 +6,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install test dependencies
+        run: sudo apt-get install shellcheck bats && pip install pyright
       - name: Run Python unit tests
         run: python3 -m unittest discover
-      - name: Install test dependencies
-        run: sudo apt-get install shellcheck bats
+      - name: Run pyright
+        run: pyright
       - name: Run bats integration tests
         run: bats wikidata-dump-generation-smoke-tests.bats
       - name: ShellCheck the bats integration test script
-        run: shellcheck wikidata-dump-generation-smoke-tests.bats      
+        run: shellcheck wikidata-dump-generation-smoke-tests.bats

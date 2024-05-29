@@ -34,35 +34,27 @@ wikidatawiki20211030_dirs = [
 
 
 class TestDumpListingReader(unittest.TestCase):
-    @patch.object(DumpListingReader, '_request_dump_main_index')
-    def test_get_dump_main_index_empty(self, mock_request_dump_main_index):
-        mock_request_dump_main_index.side_effect = lambda: 'foo'.encode()
-
-        dump_listing_reader = DumpListingReader('')
-        dump_main_index = dump_listing_reader._get_dump_main_index()
-        self.assertEqual(dump_main_index.latest, {})
-        self.assertEqual(dump_main_index.dirs, [])
-
     @patch.object(DumpListingReader, '_request_dump_dir')
     @patch.object(DumpListingReader, '_request_dump_main_index')
     def test_get_dump_main_index_wikidatawiki20211030(self, mock_request_dump_main_index, mock_request_dump_dir):
         mock_request_dump_main_index.side_effect = lambda: Path(
             __DIR__ + '/DumpListingReaderTestCases/wikidatawiki-2021-10-30/index.html').read_text().encode()
-        mock_request_dump_dir.side_effect = ''.encode()
+        mock_request_dump_dir.return_value = ''.encode()
 
         dump_listing_reader = DumpListingReader('')
-        dump_main_index = dump_listing_reader._get_dump_main_index()
-        self.assertEqual(len(dump_main_index.latest), 14)
-        self.assertEqual(dump_main_index.dirs, wikidatawiki20211030_dirs)
+        dumps_info = dump_listing_reader.get_dumps_info()
+        self.assertEqual(len(dumps_info.latest), 14)
+        self.assertEqual(list(dumps_info.dump_dirs.keys()),
+                         wikidatawiki20211030_dirs)
         # Just check two "latest" dumps by example
         self.assertEqual(
-            dump_main_index.latest['latest-all.json.bz2'].date, datetime.fromisoformat('2021-10-28'))
+            dumps_info.latest['latest-all.json.bz2'].date, datetime.fromisoformat('2021-10-28'))
         self.assertEqual(
-            dump_main_index.latest['latest-all.json.bz2'].size, 70729380062)
+            dumps_info.latest['latest-all.json.bz2'].size, 70729380062)
         self.assertEqual(
-            dump_main_index.latest['latest-truthy.nt.gz'].date, datetime.fromisoformat('2021-10-30'))
+            dumps_info.latest['latest-truthy.nt.gz'].date, datetime.fromisoformat('2021-10-30'))
         self.assertEqual(
-            dump_main_index.latest['latest-truthy.nt.gz'].size, 50633667968)
+            dumps_info.latest['latest-truthy.nt.gz'].size, 50633667968)
 
     @patch.object(DumpListingReader, '_request_dump_dir')
     def test_get_dump_dir_wikidatawiki20211030_20210924(self, mock_request_dump_dir):

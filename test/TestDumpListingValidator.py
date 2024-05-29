@@ -15,9 +15,9 @@ class TestDumpListingValidator(unittest.TestCase):
 
     def test_ensure_hashsum_files_success(self):
         dump_dirs = {
-            'dsf': DumpDirInfo({'ignored'}, 'foo', 'bar'),
-            'fdgk': DumpDirInfo({'ignored'}, 'dfr', 'dfs'),
-            'dfs': DumpDirInfo({'ignored'}, '124', 'dd'),
+            'dsf': DumpDirInfo({'a': DumpInfo(222, datetime.now())}, 'foo', 'bar'),
+            'fdgk': DumpDirInfo({'a': DumpInfo(222, datetime.now())}, 'dfr', 'dfs'),
+            'dfs': DumpDirInfo({'a': DumpInfo(222, datetime.now())}, '124', 'dd'),
             'emtpy_dump_dir_does_not_need_hash_files': DumpDirInfo({}, None, None),
         }
         dump_listing_validator = DumpListingValidator()
@@ -27,9 +27,9 @@ class TestDumpListingValidator(unittest.TestCase):
 
     def test_ensure_hashsum_files_single_failure(self):
         dump_dirs = {
-            'dsf': DumpDirInfo({'ignored'}, 'foo', 'ddd'),
-            'fdgk': DumpDirInfo({'ignored'}, 'dfr', None),
-            'dfs': DumpDirInfo({'ignored'}, '124', 'dd'),
+            'dsf': DumpDirInfo({'a': DumpInfo(222, datetime.now())}, 'foo', 'ddd'),
+            'fdgk': DumpDirInfo({'a': DumpInfo(222, datetime.now())}, 'dfr', None),
+            'dfs': DumpDirInfo({'a': DumpInfo(222, datetime.now())}, '124', 'dd'),
         }
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_hashsum_files(dump_dirs)
@@ -39,9 +39,9 @@ class TestDumpListingValidator(unittest.TestCase):
 
     def test_ensure_hashsum_files_multiple_failures(self):
         dump_dirs = {
-            'dsf': DumpDirInfo({'ignored'}, None, 'ddd'),
-            'fdgk': DumpDirInfo({'ignored'}, 'dfr', None),
-            'dfs': DumpDirInfo({'ignored'}, '124', 'dd'),
+            'dsf': DumpDirInfo({'a': DumpInfo(222, datetime.now())}, None, 'ddd'),
+            'fdgk': DumpDirInfo({'a': DumpInfo(222, datetime.now())}, 'dfr', None),
+            'dfs': DumpDirInfo({'a': DumpInfo(222, datetime.now())}, '124', 'dd'),
         }
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_hashsum_files(dump_dirs)
