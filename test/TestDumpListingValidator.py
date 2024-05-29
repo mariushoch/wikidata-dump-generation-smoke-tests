@@ -5,6 +5,7 @@ from WikidataDumpGenerationSmokeTests import DumpListingValidator
 from WikidataDumpGenerationSmokeTests.DumpListingReader import DumpDirInfo, DumpInfo, DumpAllInfo
 from WikidataDumpGenerationSmokeTests.DumpListingValidator import ValidatorResult
 
+
 class TestDumpListingValidator(unittest.TestCase):
     def test_ensure_hashsum_files_empty(self):
         dump_listing_validator = DumpListingValidator()
@@ -33,7 +34,8 @@ class TestDumpListingValidator(unittest.TestCase):
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_hashsum_files(dump_dirs)
         self.assertEqual(result.valid, False)
-        self.assertEqual(result.errors, ['Missing sha1sum file in dir "fdgk".'])
+        self.assertEqual(
+            result.errors, ['Missing sha1sum file in dir "fdgk".'])
 
     def test_ensure_hashsum_files_multiple_failures(self):
         dump_dirs = {
@@ -47,7 +49,7 @@ class TestDumpListingValidator(unittest.TestCase):
         self.assertEqual(result.errors, [
             'Missing md5sum file in dir "dsf".',
             'Missing sha1sum file in dir "fdgk".',
-            ])
+        ])
 
     def test_ensure_latest_empty(self):
         dump_listing_validator = DumpListingValidator()
@@ -59,8 +61,8 @@ class TestDumpListingValidator(unittest.TestCase):
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_latest({
             'a': DumpInfo(222, datetime.now()),
-            'b': DumpInfo(222, datetime.now() - timedelta(days = 7)),
-            'c': DumpInfo(222, datetime.now() - timedelta(days = 10)),
+            'b': DumpInfo(222, datetime.now() - timedelta(days=7)),
+            'c': DumpInfo(222, datetime.now() - timedelta(days=10)),
         })
         self.assertEqual(result.valid, True)
         self.assertEqual(result.errors, [])
@@ -69,19 +71,20 @@ class TestDumpListingValidator(unittest.TestCase):
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_latest({
             'a': DumpInfo(222, datetime.now()),
-            'b': DumpInfo(222, datetime.now() - timedelta(days = 14)),
-            'c': DumpInfo(222, datetime.now() - timedelta(days = 10)),
+            'b': DumpInfo(222, datetime.now() - timedelta(days=14)),
+            'c': DumpInfo(222, datetime.now() - timedelta(days=10)),
         })
         self.assertEqual(result.valid, False)
-        self.assertEqual(result.errors, ['Latest dump "b" is too old (14 days).'])
+        self.assertEqual(
+            result.errors, ['Latest dump "b" is too old (14 days).'])
 
     def test_ensure_latest_multiple_failures(self):
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_latest({
             'a': DumpInfo(222, datetime.now()),
-            'b': DumpInfo(222, datetime.now() - timedelta(days = 14)),
+            'b': DumpInfo(222, datetime.now() - timedelta(days=14)),
             'to-small': DumpInfo(50, datetime.now()),
-            'latest-mediainfo.nt.gz': DumpInfo(222, datetime.now() - timedelta(days = 100)),
+            'latest-mediainfo.nt.gz': DumpInfo(222, datetime.now() - timedelta(days=100)),
             'sdfdsfs': DumpInfo(222, datetime.now())
         })
         self.assertEqual(result.valid, False)
@@ -99,15 +102,23 @@ class TestDumpListingValidator(unittest.TestCase):
     def test_group_dumps_by_type(self):
         dump_listing_validator = DumpListingValidator()
 
-        lexemes_bz2_20211006 = DumpInfo(195288101, datetime.fromisoformat('2021-10-06'))
-        lexemes_gz_20211006 = DumpInfo(271807724, datetime.fromisoformat('2021-10-06'))
-        truthy_bz2_20211006 = DumpInfo(30708742696, datetime.fromisoformat('2021-10-09'))
-        truthy_gz_20211006 = DumpInfo(50187553542, datetime.fromisoformat('2021-10-09'))
+        lexemes_bz2_20211006 = DumpInfo(
+            195288101, datetime.fromisoformat('2021-10-06'))
+        lexemes_gz_20211006 = DumpInfo(
+            271807724, datetime.fromisoformat('2021-10-06'))
+        truthy_bz2_20211006 = DumpInfo(
+            30708742696, datetime.fromisoformat('2021-10-09'))
+        truthy_gz_20211006 = DumpInfo(
+            50187553542, datetime.fromisoformat('2021-10-09'))
 
-        lexemes_bz2_20211013 = DumpInfo(196060822, datetime.fromisoformat('2021-10-13'))
-        lexemes_gz_20211013 = DumpInfo(272816734, datetime.fromisoformat('2021-10-13'))
-        truthy_bz2_20211013 = DumpInfo(30768656015, datetime.fromisoformat('2021-10-13'))
-        truthy_gz_20211013 = DumpInfo(50291842035, datetime.fromisoformat('2021-10-13'))
+        lexemes_bz2_20211013 = DumpInfo(
+            196060822, datetime.fromisoformat('2021-10-13'))
+        lexemes_gz_20211013 = DumpInfo(
+            272816734, datetime.fromisoformat('2021-10-13'))
+        truthy_bz2_20211013 = DumpInfo(
+            30768656015, datetime.fromisoformat('2021-10-13'))
+        truthy_gz_20211013 = DumpInfo(
+            50291842035, datetime.fromisoformat('2021-10-13'))
 
         dumps_by_type = dump_listing_validator._group_dumps_by_type({
             '20211006/': DumpDirInfo({
@@ -151,11 +162,15 @@ class TestDumpListingValidator(unittest.TestCase):
     def test_ensure_dump_sizes(self):
         dump_listing_validator = DumpListingValidator()
 
-        lexemes_bz2_20211006 = DumpInfo(195288101, datetime.fromisoformat('2021-10-06'))
-        truthy_gz_20211006 = DumpInfo(50187553542, datetime.fromisoformat('2021-10-09'))
+        lexemes_bz2_20211006 = DumpInfo(
+            195288101, datetime.fromisoformat('2021-10-06'))
+        truthy_gz_20211006 = DumpInfo(
+            50187553542, datetime.fromisoformat('2021-10-09'))
 
-        lexemes_bz2_20211013 = DumpInfo(196060822, datetime.fromisoformat('2021-10-13'))
-        truthy_gz_20211013 = DumpInfo(50291842035, datetime.fromisoformat('2021-10-13'))
+        lexemes_bz2_20211013 = DumpInfo(
+            196060822, datetime.fromisoformat('2021-10-13'))
+        truthy_gz_20211013 = DumpInfo(
+            50291842035, datetime.fromisoformat('2021-10-13'))
 
         dumps_by_type = {
             'wikidata-lexemes.json.bz2': {
@@ -174,11 +189,15 @@ class TestDumpListingValidator(unittest.TestCase):
     def test_ensure_dump_sizes_single_failure(self):
         dump_listing_validator = DumpListingValidator()
 
-        lexemes_bz2_20211006 = DumpInfo(195288101, datetime.fromisoformat('2021-10-06'))
-        truthy_gz_20211006 = DumpInfo(50187553542, datetime.fromisoformat('2021-10-09'))
+        lexemes_bz2_20211006 = DumpInfo(
+            195288101, datetime.fromisoformat('2021-10-06'))
+        truthy_gz_20211006 = DumpInfo(
+            50187553542, datetime.fromisoformat('2021-10-09'))
 
-        lexemes_bz2_20211013 = DumpInfo(195288105, datetime.fromisoformat('2021-10-13'))
-        truthy_gz_20211013 = DumpInfo(50291842035, datetime.fromisoformat('2021-10-13'))
+        lexemes_bz2_20211013 = DumpInfo(
+            195288105, datetime.fromisoformat('2021-10-13'))
+        truthy_gz_20211013 = DumpInfo(
+            50291842035, datetime.fromisoformat('2021-10-13'))
 
         dumps_by_type = {
             'wikidata-lexemes.json.bz2': {
@@ -195,15 +214,18 @@ class TestDumpListingValidator(unittest.TestCase):
         self.assertEqual(
             result.errors, [
                 'Dump wikidata-20211013-lexemes.json.bz2 should be at least 195385745 bytes (is 195288105 bytes).',
-            ] )
+            ])
 
     def test_ensure_dump_sizes_multiple_failures(self):
         dump_listing_validator = DumpListingValidator()
 
-        lexemes_bz2_20211006 = DumpInfo(195288101, datetime.fromisoformat('2021-10-06'))
-        truthy_gz_20211006 = DumpInfo(50187553542, datetime.fromisoformat('2021-10-09'))
+        lexemes_bz2_20211006 = DumpInfo(
+            195288101, datetime.fromisoformat('2021-10-06'))
+        truthy_gz_20211006 = DumpInfo(
+            50187553542, datetime.fromisoformat('2021-10-09'))
 
-        lexemes_bz2_20211013 = DumpInfo(195288105, datetime.fromisoformat('2021-10-13'))
+        lexemes_bz2_20211013 = DumpInfo(
+            195288105, datetime.fromisoformat('2021-10-13'))
         truthy_gz_20211013 = DumpInfo(0, datetime.fromisoformat('2021-10-13'))
 
         dumps_by_type = {
@@ -222,7 +244,7 @@ class TestDumpListingValidator(unittest.TestCase):
             result.errors, [
                 'Dump wikidata-20211013-lexemes.json.bz2 should be at least 195385745 bytes (is 195288105 bytes).',
                 'Dump wikidata-20211013-truthy-BETA.nt.gz should be at least 50212647318 bytes (is 0 bytes).',
-            ] )
+            ])
 
     def test_merge_results_empty(self):
         dump_listing_validator = DumpListingValidator()
@@ -234,28 +256,32 @@ class TestDumpListingValidator(unittest.TestCase):
     def test_merge_results_good_single(self):
         dump_listing_validator = DumpListingValidator()
 
-        result = dump_listing_validator._merge_results(ValidatorResult(True, []))
+        result = dump_listing_validator._merge_results(
+            ValidatorResult(True, []))
         self.assertEqual(result.valid, True)
         self.assertEqual(result.errors, [])
 
     def test_merge_results_good_multiple(self):
         dump_listing_validator = DumpListingValidator()
 
-        result = dump_listing_validator._merge_results(ValidatorResult(True, []), ValidatorResult(True, []))
+        result = dump_listing_validator._merge_results(
+            ValidatorResult(True, []), ValidatorResult(True, []))
         self.assertEqual(result.valid, True)
         self.assertEqual(result.errors, [])
 
     def test_merge_results_bad_single(self):
         dump_listing_validator = DumpListingValidator()
 
-        result = dump_listing_validator._merge_results(ValidatorResult(False, ['a']))
+        result = dump_listing_validator._merge_results(
+            ValidatorResult(False, ['a']))
         self.assertEqual(result.valid, False)
         self.assertEqual(result.errors, ['a'])
 
     def test_merge_results_bad_multiple(self):
         dump_listing_validator = DumpListingValidator()
 
-        result = dump_listing_validator._merge_results(ValidatorResult(False, ['a']), ValidatorResult(False, ['b']), ValidatorResult(True, []))
+        result = dump_listing_validator._merge_results(ValidatorResult(
+            False, ['a']), ValidatorResult(False, ['b']), ValidatorResult(True, []))
         self.assertEqual(result.valid, False)
         self.assertEqual(result.errors, ['a', 'b'])
 
@@ -269,9 +295,12 @@ class TestDumpListingValidator(unittest.TestCase):
     def test_validate_listing_success(self):
         dump_listing_validator = DumpListingValidator()
 
-        lexemes_bz2_20211006 = DumpInfo(1000, datetime.fromisoformat('2021-10-06'))
-        lexemes_bz2_20211007 = DumpInfo(2000, datetime.fromisoformat('2021-10-06'))
-        lexemes_bz2_20211008 = DumpInfo(3000, datetime.fromisoformat('2021-10-06'))
+        lexemes_bz2_20211006 = DumpInfo(
+            1000, datetime.fromisoformat('2021-10-06'))
+        lexemes_bz2_20211007 = DumpInfo(
+            2000, datetime.fromisoformat('2021-10-06'))
+        lexemes_bz2_20211008 = DumpInfo(
+            3000, datetime.fromisoformat('2021-10-06'))
 
         dump_dirs = {
             'dsf': DumpDirInfo({
@@ -286,18 +315,20 @@ class TestDumpListingValidator(unittest.TestCase):
         }
         latest = {
             'a': DumpInfo(222, datetime.now()),
-            'b': DumpInfo(222, datetime.now() - timedelta(days = 7)),
-            'c': DumpInfo(222, datetime.now() - timedelta(days = 10)),
+            'b': DumpInfo(222, datetime.now() - timedelta(days=7)),
+            'c': DumpInfo(222, datetime.now() - timedelta(days=10)),
         }
 
-        result = dump_listing_validator.validate_listing(DumpAllInfo(latest, dump_dirs))
+        result = dump_listing_validator.validate_listing(
+            DumpAllInfo(latest, dump_dirs))
         self.assertEqual(result.valid, True)
         self.assertEqual(result.errors, [])
 
     def test_validate_listing_hashsum_file_failure(self):
         dump_listing_validator = DumpListingValidator()
 
-        lexemes_bz2_20211006 = DumpInfo(10000, datetime.fromisoformat('2021-10-06'))
+        lexemes_bz2_20211006 = DumpInfo(
+            10000, datetime.fromisoformat('2021-10-06'))
         dump_dirs = {
             'dsf': DumpDirInfo({
                 'wikidata-20211006-lexemes.json.bz2': lexemes_bz2_20211006
@@ -306,7 +337,8 @@ class TestDumpListingValidator(unittest.TestCase):
                 'wikidata-20211006-lexemes.json.bz2': lexemes_bz2_20211006
             }, 'dfr', 'dfs'),
         }
-        result = dump_listing_validator.validate_listing(DumpAllInfo({}, dump_dirs))
+        result = dump_listing_validator.validate_listing(
+            DumpAllInfo({}, dump_dirs))
         self.assertEqual(result.valid, False)
         self.assertEqual(result.errors, ['Missing md5sum file in dir "dsf".'])
 
@@ -315,16 +347,19 @@ class TestDumpListingValidator(unittest.TestCase):
 
         latest = {
             'a': DumpInfo(222, datetime.now()),
-            'b': DumpInfo(222, datetime.now() - timedelta(days = 70)),
-            'c': DumpInfo(222, datetime.now() - timedelta(days = 10)),
+            'b': DumpInfo(222, datetime.now() - timedelta(days=70)),
+            'c': DumpInfo(222, datetime.now() - timedelta(days=10)),
         }
 
-        result = dump_listing_validator.validate_listing(DumpAllInfo(latest, {}))
+        result = dump_listing_validator.validate_listing(
+            DumpAllInfo(latest, {}))
         self.assertEqual(result.valid, False)
-        self.assertEqual(result.errors, ['Latest dump "b" is too old (70 days).'])
+        self.assertEqual(
+            result.errors, ['Latest dump "b" is too old (70 days).'])
 
     def test_validate_listing_latest_missing(self):
-        dump_listing_validator = DumpListingValidator(latest_expected=['has-to-be-there1', 'has-to-be-there3', 'has-to-be-there2'])
+        dump_listing_validator = DumpListingValidator(
+            latest_expected=['has-to-be-there1', 'has-to-be-there3', 'has-to-be-there2'])
 
         latest = {
             'a': DumpInfo(222, datetime.now()),
@@ -332,20 +367,25 @@ class TestDumpListingValidator(unittest.TestCase):
             'b': DumpInfo(222, datetime.now()),
         }
 
-        result = dump_listing_validator.validate_listing(DumpAllInfo(latest, {}))
+        result = dump_listing_validator.validate_listing(
+            DumpAllInfo(latest, {}))
         self.assertEqual(result.valid, False)
         self.assertTrue(result.errors == ['Missing expected files: "has-to-be-there1", "has-to-be-there3".'] or
-                        result.errors == ['Missing expected files: "has-to-be-there3", "has-to-be-there1".']
+                        result.errors == [
+                            'Missing expected files: "has-to-be-there3", "has-to-be-there1".']
                         )
 
     def test_validate_listing_size_failure(self):
         dump_listing_validator = DumpListingValidator()
 
-        lexemes_bz2_20211006 = DumpInfo(10000, datetime.fromisoformat('2021-10-06'))
+        lexemes_bz2_20211006 = DumpInfo(
+            10000, datetime.fromisoformat('2021-10-06'))
         # This is (unexpectedly) much smaller -> failure
-        lexemes_bz2_20211007 = DumpInfo(8000, datetime.fromisoformat('2021-10-07'))
+        lexemes_bz2_20211007 = DumpInfo(
+            8000, datetime.fromisoformat('2021-10-07'))
         # This is larger again (compared to previous dump only) -> should be fine
-        lexemes_bz2_20211008 = DumpInfo(9000, datetime.fromisoformat('2021-10-08'))
+        lexemes_bz2_20211008 = DumpInfo(
+            9000, datetime.fromisoformat('2021-10-08'))
 
         dump_dirs = {
             'dsf': DumpDirInfo({
@@ -359,16 +399,21 @@ class TestDumpListingValidator(unittest.TestCase):
             }, '124', 'dd'),
         }
 
-        result = dump_listing_validator.validate_listing(DumpAllInfo({}, dump_dirs))
+        result = dump_listing_validator.validate_listing(
+            DumpAllInfo({}, dump_dirs))
         self.assertEqual(result.valid, False)
-        self.assertEqual(result.errors, ['Dump wikidata-20211007-lexemes.json.bz2 should be at least 10005 bytes (is 8000 bytes).'])
+        self.assertEqual(result.errors, [
+                         'Dump wikidata-20211007-lexemes.json.bz2 should be at least 10005 bytes (is 8000 bytes).'])
 
     def test_validate_listing_multiple_failures(self):
         dump_listing_validator = DumpListingValidator()
 
-        lexemes_bz2_20211006 = DumpInfo(10000, datetime.fromisoformat('2021-10-06'))
-        lexemes_bz2_20211007 = DumpInfo(10000, datetime.fromisoformat('2021-10-06'))
-        lexemes_bz2_20211008 = DumpInfo(0, datetime.fromisoformat('2021-10-06'))
+        lexemes_bz2_20211006 = DumpInfo(
+            10000, datetime.fromisoformat('2021-10-06'))
+        lexemes_bz2_20211007 = DumpInfo(
+            10000, datetime.fromisoformat('2021-10-06'))
+        lexemes_bz2_20211008 = DumpInfo(
+            0, datetime.fromisoformat('2021-10-06'))
 
         dump_dirs = {
             'dsf': DumpDirInfo({
@@ -383,11 +428,12 @@ class TestDumpListingValidator(unittest.TestCase):
         }
         latest = {
             'a': DumpInfo(222, datetime.now()),
-            'b': DumpInfo(222, datetime.now() - timedelta(days = 70)),
-            'c': DumpInfo(222, datetime.now() - timedelta(days = 122)),
+            'b': DumpInfo(222, datetime.now() - timedelta(days=70)),
+            'c': DumpInfo(222, datetime.now() - timedelta(days=122)),
         }
 
-        result = dump_listing_validator.validate_listing(DumpAllInfo(latest, dump_dirs))
+        result = dump_listing_validator.validate_listing(
+            DumpAllInfo(latest, dump_dirs))
         self.assertEqual(result.valid, False)
         self.assertEqual(result.errors, [
             'Missing sha1sum file in dir "fdgk".',
