@@ -35,28 +35,6 @@ wikidatawiki20211030_dirs = [
 
 class TestDumpListingReader(unittest.TestCase):
     @patch.object(DumpListingReader, '_request_dump_dir')
-    @patch.object(DumpListingReader, '_request_dump_main_index')
-    def test_get_dump_main_index_wikidatawiki20211030(self, mock_request_dump_main_index, mock_request_dump_dir):
-        mock_request_dump_main_index.side_effect = lambda: Path(
-            __DIR__ + '/DumpListingReaderTestCases/wikidatawiki-2021-10-30/index.html').read_text().encode()
-        mock_request_dump_dir.return_value = ''.encode()
-
-        dump_listing_reader = DumpListingReader('')
-        dumps_info = dump_listing_reader.get_dumps_info()
-        self.assertEqual(len(dumps_info.latest), 14)
-        self.assertEqual(list(dumps_info.dump_dirs.keys()),
-                         wikidatawiki20211030_dirs)
-        # Just check two "latest" dumps by example
-        self.assertEqual(
-            dumps_info.latest['latest-all.json.bz2'].date, datetime.fromisoformat('2021-10-28'))
-        self.assertEqual(
-            dumps_info.latest['latest-all.json.bz2'].size, 70729380062)
-        self.assertEqual(
-            dumps_info.latest['latest-truthy.nt.gz'].date, datetime.fromisoformat('2021-10-30'))
-        self.assertEqual(
-            dumps_info.latest['latest-truthy.nt.gz'].size, 50633667968)
-
-    @patch.object(DumpListingReader, '_request_dump_dir')
     def test_get_dump_dir_wikidatawiki20211030_20210924(self, mock_request_dump_dir):
         def request_dump_dir_from_file(dir_date):
             self.assertEqual(dir_date, '20210924/')
@@ -101,8 +79,8 @@ class TestDumpListingReader(unittest.TestCase):
         dump_listing_reader = DumpListingReader('')
         dumps_info = dump_listing_reader.get_dumps_info()
         self.assertEqual(len(dumps_info.latest), 14)
-        self.assertEqual(len(dumps_info.dump_dirs),
-                         len(wikidatawiki20211030_dirs))
+        self.assertEqual(list(dumps_info.dump_dirs.keys()),
+                         wikidatawiki20211030_dirs)
         # Just check one by example
         dump_dir = dumps_info.dump_dirs['20211006/']
         self.assertEqual(dump_dir.dumps, {
@@ -117,3 +95,12 @@ class TestDumpListingReader(unittest.TestCase):
                          'wikidata-20211006-sha1sums.txt')
         # Make sure request_dump_dir was called once with all dump dirs
         self.assertEqual(dump_dirs_to_visit, [])
+        # Just check two "latest" dumps by example
+        self.assertEqual(
+            dumps_info.latest['latest-all.json.bz2'].date, datetime.fromisoformat('2021-10-28'))
+        self.assertEqual(
+            dumps_info.latest['latest-all.json.bz2'].size, 70729380062)
+        self.assertEqual(
+            dumps_info.latest['latest-truthy.nt.gz'].date, datetime.fromisoformat('2021-10-30'))
+        self.assertEqual(
+            dumps_info.latest['latest-truthy.nt.gz'].size, 50633667968)

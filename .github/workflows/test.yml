@@ -11,7 +11,7 @@ jobs:
       - name: Run Python unit tests
         run: python3 -m unittest discover
       - name: Run pyright
-        run: pyright
+        run: pyright --stats
       - name: Run bats integration tests
         run: bats wikidata-dump-generation-smoke-tests.bats
       - name: ShellCheck the bats integration test script
