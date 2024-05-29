@@ -47,12 +47,15 @@ class DumpListingValidator():
         valid = True
         errors = []
 
-        for latest_name, latest_date in latest.items():
-            age = now - latest_date
+        for latest_name, latest in latest.items():
+            age = now - latest.date
             # Older than expected
             if age > timedelta(days = self.max_latest_age):
                 valid = False
                 errors.append('Latest dump "' + latest_name + '" is too old (' + str(age.days) + ' days).')
+            if latest.size < 150:
+                valid = False
+                errors.append('Latest dump "' + latest_name + '" seems empty (probably a broken symlink).')
 
         return ValidatorResult(valid, errors)
 

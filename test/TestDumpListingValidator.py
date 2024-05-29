@@ -58,9 +58,9 @@ class TestDumpListingValidator(unittest.TestCase):
     def test_ensure_latest_success(self):
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_latest({
-            'a': datetime.now(),
-            'b': datetime.now() - timedelta(days = 7),
-            'c': datetime.now() - timedelta(days = 10),
+            'a': DumpInfo(222, datetime.now()),
+            'b': DumpInfo(222, datetime.now() - timedelta(days = 7)),
+            'c': DumpInfo(222, datetime.now() - timedelta(days = 10)),
         })
         self.assertEqual(result.valid, True)
         self.assertEqual(result.errors, [])
@@ -68,9 +68,9 @@ class TestDumpListingValidator(unittest.TestCase):
     def test_ensure_latest_single_failure(self):
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_latest({
-            'a': datetime.now(),
-            'b': datetime.now() - timedelta(days = 14),
-            'c': datetime.now() - timedelta(days = 10),
+            'a': DumpInfo(222, datetime.now()),
+            'b': DumpInfo(222, datetime.now() - timedelta(days = 14)),
+            'c': DumpInfo(222, datetime.now() - timedelta(days = 10)),
         })
         self.assertEqual(result.valid, False)
         self.assertEqual(result.errors, ['Latest dump "b" is too old (14 days).'])
@@ -78,14 +78,16 @@ class TestDumpListingValidator(unittest.TestCase):
     def test_ensure_latest_multiple_failures(self):
         dump_listing_validator = DumpListingValidator()
         result = dump_listing_validator._ensure_latest({
-            'a': datetime.now(),
-            'b': datetime.now() - timedelta(days = 14),
-            'latest-mediainfo.nt.gz': datetime.now() - timedelta(days = 100),
-            'sdfdsfs': datetime.now()
+            'a': DumpInfo(222, datetime.now()),
+            'b': DumpInfo(222, datetime.now() - timedelta(days = 14)),
+            'to-small': DumpInfo(50, datetime.now()),
+            'latest-mediainfo.nt.gz': DumpInfo(222, datetime.now() - timedelta(days = 100)),
+            'sdfdsfs': DumpInfo(222, datetime.now())
         })
         self.assertEqual(result.valid, False)
         self.assertEqual(result.errors, [
             'Latest dump "b" is too old (14 days).',
+            'Latest dump "to-small" seems empty (probably a broken symlink).',
             'Latest dump "latest-mediainfo.nt.gz" is too old (100 days).',
         ])
 
@@ -283,9 +285,9 @@ class TestDumpListingValidator(unittest.TestCase):
             }, '124', 'dd'),
         }
         latest = {
-            'a': datetime.now(),
-            'b': datetime.now() - timedelta(days = 7),
-            'c': datetime.now() - timedelta(days = 10),
+            'a': DumpInfo(222, datetime.now()),
+            'b': DumpInfo(222, datetime.now() - timedelta(days = 7)),
+            'c': DumpInfo(222, datetime.now() - timedelta(days = 10)),
         }
 
         result = dump_listing_validator.validate_listing(DumpAllInfo(latest, dump_dirs))
@@ -312,9 +314,9 @@ class TestDumpListingValidator(unittest.TestCase):
         dump_listing_validator = DumpListingValidator()
 
         latest = {
-            'a': datetime.now(),
-            'b': datetime.now() - timedelta(days = 70),
-            'c': datetime.now() - timedelta(days = 10),
+            'a': DumpInfo(222, datetime.now()),
+            'b': DumpInfo(222, datetime.now() - timedelta(days = 70)),
+            'c': DumpInfo(222, datetime.now() - timedelta(days = 10)),
         }
 
         result = dump_listing_validator.validate_listing(DumpAllInfo(latest, {}))
@@ -365,9 +367,9 @@ class TestDumpListingValidator(unittest.TestCase):
             }, '124', 'dd'),
         }
         latest = {
-            'a': datetime.now(),
-            'b': datetime.now() - timedelta(days = 70),
-            'c': datetime.now() - timedelta(days = 122),
+            'a': DumpInfo(222, datetime.now()),
+            'b': DumpInfo(222, datetime.now() - timedelta(days = 70)),
+            'c': DumpInfo(222, datetime.now() - timedelta(days = 122)),
         }
 
         result = dump_listing_validator.validate_listing(DumpAllInfo(latest, dump_dirs))

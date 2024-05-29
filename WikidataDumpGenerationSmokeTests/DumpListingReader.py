@@ -4,12 +4,12 @@ import re
 from typing import NamedTuple, Optional
 
 try:
-    class DumpMainInfo(NamedTuple):
-        latest: dict[str, datetime.datetime]
-        dirs: list[str]
     class DumpInfo(NamedTuple):
         size: int
         date: datetime.datetime
+    class DumpMainInfo(NamedTuple):
+        latest: dict[str, DumpInfo]
+        dirs: list[str]
     class DumpDirInfo(NamedTuple):
         dumps: dict[str, DumpInfo]
         md5sums_file: Optional[str]
@@ -50,12 +50,12 @@ class DumpListingReader():
         for line in dump_main_index_raw.splitlines():
             line = line.decode('UTF-8')
             res_dirs = re.search(r"20[2-3]\d[0-1]\d[0-3]\d/", line)
-            res_latest = re.search(r"(latest-.*?\.(gz|bz2)).*(\d\d-\w{3}-20[2-3]\d)", line)
+            res_latest = re.search(r"(latest-.*?\.(gz|bz2)).*(\d\d-\w{3}-20[2-3]\d) \d\d:\d\d +(\d+)", line)
             if res_dirs:
                 dirs.append(res_dirs.group(0))
             elif res_latest:
                 date = datetime.datetime.strptime(res_latest.group(3), '%d-%b-%Y')
-                latest[res_latest.group(1)] = date
+                latest[res_latest.group(1)] = DumpInfo(int(res_latest.group(4)), date)
 
         return DumpMainInfo(latest, dirs)
 

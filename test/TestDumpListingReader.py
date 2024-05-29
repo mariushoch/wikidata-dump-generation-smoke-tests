@@ -53,8 +53,10 @@ class TestDumpListingReader(unittest.TestCase):
         self.assertEqual(len(dump_main_index.latest), 14)
         self.assertEqual(dump_main_index.dirs, wikidatawiki20211030_dirs)
         # Just check two "latest" dumps by example
-        self.assertEqual(dump_main_index.latest['latest-all.json.bz2'], datetime.fromisoformat('2021-10-28'))
-        self.assertEqual(dump_main_index.latest['latest-truthy.nt.gz'], datetime.fromisoformat('2021-10-30'))
+        self.assertEqual(dump_main_index.latest['latest-all.json.bz2'].date, datetime.fromisoformat('2021-10-28'))
+        self.assertEqual(dump_main_index.latest['latest-all.json.bz2'].size, 70729380062)
+        self.assertEqual(dump_main_index.latest['latest-truthy.nt.gz'].date, datetime.fromisoformat('2021-10-30'))
+        self.assertEqual(dump_main_index.latest['latest-truthy.nt.gz'].size, 50633667968)
 
     @patch.object(DumpListingReader, '_request_dump_dir')
     def test_get_dump_dir_wikidatawiki20211030_20210924(self, mock_request_dump_dir):
