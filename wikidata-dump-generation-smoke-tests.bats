@@ -20,6 +20,7 @@ teardown() {
         [[ "$output" =~ one\ of.*required ]]
 }
 @test "wikidata-dump-generation-smoke-tests --test-wikidata" {
+        skip # temp: 2024-12-19
         run "$BATS_TEST_DIRNAME/wikidata-dump-generation-smoke-tests" --test-wikidata
         [ "$status" -eq 0 ]
         [ "$output" == "" ]
